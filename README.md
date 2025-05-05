@@ -27,7 +27,7 @@ AI Calorie Counter is a full-stack web application that uses AI to identify food
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/ai-calorie-counter.git
+git clone https://github.com/vvidhig/ai-calorie-counter.git
 ```
 
 ### 2. Setup Backend (Python)
