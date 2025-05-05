@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Analysis Debug Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        .hidden {
+            display: none;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>Food Analysis API Debug Tool</h1>
+    <p>Use this tool to test your FastAPI backend directly</p>
+
+    <form id="uploadForm">
+        <div class="form-group">
+            <label for="imageFile">Select an image file:</label>
+            <input type="file" id="imageFile" name="image" accept="image/*" required>
+        </div>
+        <button type="submit">Upload and Analyze</button>
+    </form>
+
+    <div id="results" class="hidden">
+        <h2>Response</h2>
+        <pre id="responseData"></pre>
+    </div>
+
+    <div id="error" class="hidden">
+        <h2>Error</h2>
+        <pre id="errorData"></pre>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const resultsDiv = document.getElementById('results');
+            const errorDiv = document.getElementById('error');
+            const responseDataPre = document.getElementById('responseData');
+            const errorDataPre = document.getElementById('errorData');
+            
+            resultsDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('imageFile');
+            
+            if (fileInput.files.length === 0) {
+                alert('Please select a file');
+                return;
+            }
+            
+            // Important: Use the same parameter name as expected by your FastAPI endpoint
+            formData.append('image', fileInput.files[0]);
+            
+            try {
+                console.log('Starting upload...');
+                const response = await fetch('http://localhost:8000/analyze-food/', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error ${response.status}: ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                responseDataPre.textContent = JSON.stringify(data, null, 2);
+                resultsDiv.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error:', error);
+                errorDataPre.textContent = error.toString();
+                errorDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
